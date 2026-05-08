@@ -1,4 +1,4 @@
-Trabajo Práctico: [Nombre del Proyecto]
+Trabajo Práctico N°2 - Programación III
 =======================================
 
 Este proyecto es una aplicación Java desarrollada para la materia Programación III de la Universidad Nancional de General Sarmiento.
@@ -60,7 +60,7 @@ Para evitar conflictos y mantener el repositorio limpio, se recomienda seguir es
 
 -   `/test`: Pruebas unitarias.
 
--   `localidades`: Archivo de datos necesario para la ejecución del programa.
+-   `localidades`: Archivo de datos que guarda las localidades ingresadas en el sistema, de no existir se autogenera al ingresar la primera localidad.
 
 * * * * *
 
