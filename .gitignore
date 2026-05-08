@@ -1,0 +1,21 @@
+# ==========================================
+# 1. Archivos Compilados (NUNCA se suben)
+# ==========================================
+bin/
+*.class
+
+# ==========================================
+# 2. Archivos del Sistema Operativo
+# ==========================================
+.DS_Store
+Thumbs.db
+
+# ==========================================
+# 3. Preferencias de usuario de Eclipse
+# ==========================================
+# Ignoramos .settings porque guarda cosas como el tamaño de fuente o reglas de formateo locales
+.settings/
+
+# NOTA: NO ignoramos .classpath ni .project
+# Esto asegura que cuando el repo sea clonado, 
+# Eclipse reconozca automáticamente la carpeta lib/
