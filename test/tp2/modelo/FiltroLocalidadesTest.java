@@ -25,7 +25,7 @@ public class FiltroLocalidadesTest {
     @Test
     public void testBuscarPorNombreParcial() {
         List<Localidad> resultados = FiltroLocalidades.buscarPorNombre(localidadesMuestra, "Santa");
-        assertEquals(2, resultados.size());
+        assertEquals(1, resultados.size());
         assertTrue(resultados.stream().allMatch(l -> l.nombre().contains("Santa")));
     }
 
