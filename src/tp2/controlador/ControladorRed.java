@@ -9,27 +9,23 @@ import javax.swing.*;
 import java.util.List;
 
 
-/** Controlador que dirige la comunicación entre la Vista y el Modelo.*/
+/** Controlador que coordina la comunicacion entre la Vista y el Modelo. */
 
 public class ControladorRed {
     private final VentanaPrincipal vista;
     private final PlanificadorRed modelo;
-    private final RepositorioLocalidades repositorio;
-    private final List<Localidad> localidades;
 
 
-    public ControladorRed(VentanaPrincipal vista, PlanificadorRed modelo, RepositorioLocalidades repositorio) {
+    public ControladorRed(VentanaPrincipal vista, PlanificadorRed modelo) {
         this.vista = vista;
         this.modelo = modelo;
-        this.repositorio = repositorio;
-        
-        this.localidades = repositorio.cargar();
         inicializarVista();
         suscribirEventos();
     }
 
     private void inicializarVista() {
-        this.vista.getPnlListado().actualizar(localidades);
+        actualizarProvincias();
+        actualizarListado();
     }
 
     private void suscribirEventos() {
@@ -38,21 +34,19 @@ public class ControladorRed {
         this.vista.getPnlListado().getBtnEliminar().addActionListener(e -> eliminarSeleccionada());
         this.vista.getPnlListado().getBtnEliminarTodo().addActionListener(e -> eliminarTodas());
         
-        // Eventos de filtrado
         this.vista.getPnlListado().getCampoBusqueda().addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
             public void keyReleased(java.awt.event.KeyEvent e) {
-                vista.getPnlListado().aplicarFiltros();
+                actualizarListado();
             }
         });
 
-        this.vista.getPnlListado().getComboProvincia().addActionListener(e -> 
-            vista.getPnlListado().aplicarFiltros()
-        );
+        this.vista.getPnlListado().getComboProvincia().addActionListener(e -> actualizarListado());
 
-        this.vista.getPnlListado().getBotonLimpiarFiltros().addActionListener(e -> 
-            vista.getPnlListado().limpiarFiltros()
-        );
+        this.vista.getPnlListado().getBotonLimpiarFiltros().addActionListener(e -> {
+            vista.getPnlListado().limpiarFiltros();
+            actualizarListado();
+        });
         
         this.vista.getPnlMapa().alHacerClick(coordenada -> {
             this.vista.getPnlFormulario().setCoordenadas(coordenada.getLat(), coordenada.getLon());
@@ -60,40 +54,41 @@ public class ControladorRed {
     }
 
     private void eliminarSeleccionada() {
-        int indice = vista.getPnlListado().getIndiceSeleccionadoEnCompletas();
+        int indice = vista.getPnlListado().getIndiceSeleccionado();
         if (indice == -1) {
             vista.mostrarError("Seleccione una localidad en la tabla para eliminar.");
             return;
         }
 
-        localidades.remove(indice);
-        repositorio.guardar(localidades);
-        vista.getPnlListado().actualizar(localidades);
+        List<Localidad> localidadesVisibles = obtenerLocalidadesVisibles();
+        modelo.eliminarLocalidad(localidadesVisibles.get(indice));
         vista.getPnlListado().limpiarFiltros();
+        actualizarProvincias();
+        actualizarListado();
         
         vista.getPnlMapa().limpiar();
         vista.getPnlResultados().limpiar();
     }
 
     private void eliminarTodas() {
-        if (localidades.isEmpty()) {
+        if (modelo.sinLocalidades()) {
             vista.mostrarError("No hay localidades para eliminar.");
             return;
         }
 
         int respuesta = JOptionPane.showConfirmDialog(
             vista,
-            "¿Estás seguro de que deseas eliminar todas las localidades?\nEsta acción no se puede deshacer.",
-            "Confirmar eliminación",
+            "Estas seguro de que deseas eliminar todas las localidades?\nEsta accion no se puede deshacer.",
+            "Confirmar eliminacion",
             JOptionPane.YES_NO_OPTION,
             JOptionPane.WARNING_MESSAGE
         );
 
         if (respuesta == JOptionPane.YES_OPTION) {
-            localidades.clear();
-            repositorio.guardar(localidades);
-            vista.getPnlListado().actualizar(localidades);
+            modelo.eliminarTodasLasLocalidades();
             vista.getPnlListado().limpiarFiltros();
+            actualizarProvincias();
+            actualizarListado();
             
             vista.getPnlMapa().limpiar();
             vista.getPnlResultados().limpiar();
@@ -105,15 +100,15 @@ public class ControladorRed {
         PanelFormularioLocalidad formulario = vista.getPnlFormulario();
         try {
             Localidad nueva = extraerLocalidadDesdeFormulario(formulario);
-            localidades.add(nueva);
+            modelo.agregarLocalidad(nueva);
             
-            repositorio.guardar(localidades);
-            vista.getPnlListado().actualizar(localidades);
+            actualizarProvincias();
+            actualizarListado();
             vista.getPnlMapa().agregarLocalidad(nueva);
             formulario.limpiar();
             
         } catch (NumberFormatException ex) {
-            vista.mostrarError("La latitud y longitud deben ser números válidos.");
+            vista.mostrarError("La latitud y longitud deben ser numeros validos.");
         } catch (IllegalArgumentException ex) {
             vista.mostrarError(ex.getMessage());
         }
@@ -128,7 +123,7 @@ public class ControladorRed {
     }
 
     private void solicitarPlanificacion() {
-        if (localidades.size() < 2) {
+        if (modelo.cantidadLocalidades() < 2) {
             vista.mostrarError("Se necesitan al menos 2 localidades para planificar la red.");
             return;
         }
@@ -137,7 +132,7 @@ public class ControladorRed {
             ParametrosCosto parametros = extraerParametrosCosto();
             ejecutarPlanificacionAsincronica(parametros);
         } catch (NumberFormatException ex) {
-            vista.mostrarError("Los parámetros de costo deben ser números válidos.");
+            vista.mostrarError("Los parametros de costo deben ser numeros validos.");
         }
     }
 
@@ -154,7 +149,7 @@ public class ControladorRed {
         SwingWorker<SolucionRed, Void> trabajador = new SwingWorker<>() {
             @Override
             protected SolucionRed doInBackground() {
-                return modelo.planificar(localidades, parametros);
+                return modelo.planificar(parametros);
             }
 
             @Override
@@ -163,7 +158,7 @@ public class ControladorRed {
                     SolucionRed resultado = get();
                     actualizarResultadosEnVista(resultado);
                 } catch (Exception e) {
-                    vista.mostrarError("Error en el cálculo: " + e.getMessage());
+                    vista.mostrarError("Error en el calculo: " + e.getMessage());
                 } finally {
                     vista.setEstadoCargando(false);
                 }
@@ -177,6 +172,21 @@ public class ControladorRed {
     private void actualizarResultadosEnVista(SolucionRed resultado) {
         vista.mostrarResultado(resultado);
         vista.getPnlResultados().mostrarSolucion(resultado);
-        vista.getPnlMapa().dibujarSolucion(localidades, resultado.conexiones());
+        vista.getPnlMapa().dibujarSolucion(modelo.obtenerLocalidades(), resultado.conexiones());
+    }
+
+    private void actualizarListado() {
+        vista.getPnlListado().actualizar(obtenerLocalidadesVisibles());
+    }
+
+    private void actualizarProvincias() {
+        vista.getPnlListado().actualizarProvincias(modelo.obtenerProvincias());
+    }
+
+    private List<Localidad> obtenerLocalidadesVisibles() {
+        return modelo.filtrarLocalidades(
+            vista.getPnlListado().getTextoBusqueda(),
+            vista.getPnlListado().getProvinciaSeleccionada()
+        );
     }
 }

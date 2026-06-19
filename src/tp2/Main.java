@@ -17,11 +17,11 @@ public class Main {
             try {
                 FlatDarkLaf.setup();
 
-                PlanificadorRed modelo = new PlanificadorRed();
                 RepositorioLocalidades repositorio = new RepositorioLocalidadesCSV("localidades.csv");
+                PlanificadorRed modelo = new PlanificadorRed(repositorio);
                 VentanaPrincipal vista = new VentanaPrincipal();
 
-                new ControladorRed(vista, modelo, repositorio);
+                new ControladorRed(vista, modelo);
 
                 vista.setVisible(true);
 

@@ -1,12 +1,10 @@
 package tp2.vista;
 
 import tp2.modelo.Localidad;
-import tp2.modelo.FiltroLocalidades;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 
 /** Panel que muestra el listado de localidades en una tabla */
@@ -19,10 +17,8 @@ public class PanelListado extends JPanel {
     private JTextField campoBusqueda;
     private JComboBox<String> comboProvincia;
     private JButton botonLimpiarFiltros;
-    private List<Localidad> localidadesCompletas;
 
     public PanelListado() {
-        this.localidadesCompletas = new ArrayList<>();
         configurarPanel();
         inicializarComponentes();
         construirLayout();
@@ -90,9 +86,7 @@ public class PanelListado extends JPanel {
     }
 
     public void actualizar(List<Localidad> localidades) {
-        this.localidadesCompletas = new ArrayList<>(localidades);
         actualizarTabla(localidades);
-        actualizarComboProvincas();
     }
 
     private void actualizarTabla(List<Localidad> localidades) {
@@ -106,50 +100,32 @@ public class PanelListado extends JPanel {
             });
         }
     }
-
-    private void actualizarComboProvincas() {
-        String provinciaSeleccionada = (String) comboProvincia.getSelectedItem();
+    public void actualizarProvincias(List<String> provincias) {
+        Object seleccionActual = comboProvincia.getSelectedItem();
         comboProvincia.removeAllItems();
         comboProvincia.addItem("Todas");
 
-        List<String> provincias = FiltroLocalidades.obtenerProvincias(localidadesCompletas);
         for (String provincia : provincias) {
             comboProvincia.addItem(provincia);
         }
 
-        if (provinciaSeleccionada != null) {
-            comboProvincia.setSelectedItem(provinciaSeleccionada);
+        if (seleccionActual != null) {
+            comboProvincia.setSelectedItem(seleccionActual);
         }
-    }
-
-    public void aplicarFiltros() {
-        String nombre = campoBusqueda.getText();
-        String provincia = (String) comboProvincia.getSelectedItem();
-        
-        List<Localidad> filtradas = FiltroLocalidades.aplicarFiltros(localidadesCompletas, nombre, provincia);
-        actualizarTabla(filtradas);
     }
 
     public void limpiarFiltros() {
         campoBusqueda.setText("");
         comboProvincia.setSelectedItem("Todas");
-        actualizarTabla(localidadesCompletas);
     }
 
-    public int getIndiceSeleccionadoEnCompletas() {
-        int indiceTabla = tablaLocalidades.getSelectedRow();
-        if (indiceTabla == -1) return -1;
+    public String getTextoBusqueda() {
+        return campoBusqueda.getText();
+    }
 
-        String nombre = (String) modeloTabla.getValueAt(indiceTabla, 0);
-        String provincia = (String) modeloTabla.getValueAt(indiceTabla, 1);
-
-        for (int i = 0; i < localidadesCompletas.size(); i++) {
-            Localidad l = localidadesCompletas.get(i);
-            if (l.nombre().equals(nombre) && l.provincia().equals(provincia)) {
-                return i;
-            }
-        }
-        return -1;
+    public String getProvinciaSeleccionada() {
+        Object seleccion = comboProvincia.getSelectedItem();
+        return seleccion == null ? "Todas" : seleccion.toString();
     }
 
     public int getIndiceSeleccionado() {
