@@ -99,7 +99,8 @@ public class PlanificadorRed {
             int indice1 = indices.get(arista.vertice1());
             int indice2 = indices.get(arista.vertice2());
 
-            if (componentes.union(indice1, indice2)) {
+            if (!componentes.find(indice1, indice2)) {
+                componentes.union(indice1, indice2);
                 arbolExpansionMinimo.agregarArista(arista);
             }
 
