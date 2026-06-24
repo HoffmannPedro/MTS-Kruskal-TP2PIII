@@ -30,14 +30,14 @@ public class LocalidadParametrosCostosTest {
     @Test
     public void testParametrosCostoNegativoLanzaError() {
         assertThrows(IllegalArgumentException.class, () ->
-                new ParametrosCosto(-1.0, 0.1, 100.0));
+                new ValuadorConexiones(-1.0, 0.1, 100.0));
     }
 
     @Test
     public void testParametrosCostoConValoresIntermedios() {
-        ParametrosCosto parametros = new ParametrosCosto(50.0, 0.25, 300.0);
-        assertEquals(50.0, parametros.costoPorKm(), 0.0001);
-        assertEquals(0.25, parametros.porcentajeAumentoExceso(), 0.0001);
-        assertEquals(300.0, parametros.costoFijoInterprovincial(), 0.0001);
+        ValuadorConexiones parametros = new ValuadorConexiones(50.0, 0.25, 300.0);
+        assertEquals(50.0, parametros.getCostoPorKm(), 0.0001);
+        assertEquals(0.25, parametros.getPorcentajeAumentoExceso(), 0.0001);
+        assertEquals(300.0, parametros.getCostoFijoInterprovincial(), 0.0001);
     }
 }

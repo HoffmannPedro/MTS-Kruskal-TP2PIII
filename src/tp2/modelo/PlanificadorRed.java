@@ -57,12 +57,12 @@ public class PlanificadorRed {
         return localidades.obtenerProvincias();
     }
 
-    public SolucionRed planificar(ParametrosCosto parametros) {
+    public SolucionRed planificar(ValuadorConexiones parametros) {
         return calcularMST(localidades.obtenerTodas(), parametros);
     }
 
     /** Calcula el MST de la red para las localidades dadas. */
-    SolucionRed planificar(List<Localidad> localidades, ParametrosCosto parametros) {
+    SolucionRed planificar(List<Localidad> localidades, ValuadorConexiones parametros) {
         return calcularMST(localidades, parametros);
     }
 
@@ -72,7 +72,7 @@ public class PlanificadorRed {
         }
     }
 
-    private SolucionRed calcularMST(List<Localidad> localidades, ParametrosCosto parametros) {
+    private SolucionRed calcularMST(List<Localidad> localidades, ValuadorConexiones parametros) {
         if (localidades == null || localidades.size() < 2) {
             return new SolucionRed(new ArrayList<>(), 0.0);
         }
@@ -123,7 +123,7 @@ public class PlanificadorRed {
     }
 
     /** Genera un grafo completo con todas las conexiones posibles entre localidades. */
-    private Grafo<Localidad> generarGrafoCompleto(List<Localidad> localidades, ParametrosCosto parametros) {
+    private Grafo<Localidad> generarGrafoCompleto(List<Localidad> localidades, ValuadorConexiones parametros) {
         Grafo<Localidad> grafo = new Grafo<>();
 
         for (Localidad localidad : localidades) {
@@ -134,7 +134,7 @@ public class PlanificadorRed {
             for (int j = i + 1; j < localidades.size(); j++) {
                 Localidad l1 = localidades.get(i);
                 Localidad l2 = localidades.get(j);
-                ValuadorConexiones valuador = new ValuadorConexiones(parametros.costoPorKm(), parametros.porcentajeAumentoExceso(), parametros.costoFijoInterprovincial());
+                ValuadorConexiones valuador = new ValuadorConexiones(parametros.getCostoPorKm(), parametros.getPorcentajeAumentoExceso(), parametros.getCostoFijoInterprovincial());
                 Conexion conexion = valuador.crearConexion(l1, l2);
                 grafo.agregarArista(new Arista<>(l1, l2, conexion.costo()));
             }
@@ -143,12 +143,12 @@ public class PlanificadorRed {
         return grafo;
     }
 
-    private SolucionRed crearSolucionRed(Grafo<Localidad> arbolExpansionMinimo, ParametrosCosto parametros) {
+    private SolucionRed crearSolucionRed(Grafo<Localidad> arbolExpansionMinimo, ValuadorConexiones parametros) {
         List<Conexion> conexiones = new ArrayList<>();
         double costoTotal = 0.0;
 
         for (Arista<Localidad> arista : arbolExpansionMinimo.aristas()) {
-            ValuadorConexiones valuador = new ValuadorConexiones(parametros.costoPorKm(), parametros.porcentajeAumentoExceso(), parametros.costoFijoInterprovincial());
+            ValuadorConexiones valuador = new ValuadorConexiones(parametros.getCostoPorKm(), parametros.getPorcentajeAumentoExceso(), parametros.getCostoFijoInterprovincial());
             Conexion conexion = valuador.crearConexion(arista.vertice1(), arista.vertice2());
             conexiones.add(conexion);
             costoTotal += conexion.costo();

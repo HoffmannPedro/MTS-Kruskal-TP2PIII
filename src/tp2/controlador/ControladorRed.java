@@ -129,23 +129,23 @@ public class ControladorRed {
         }
 
         try {
-            ParametrosCosto parametros = extraerParametrosCosto();
+            ValuadorConexiones parametros = extraerParametrosCosto();
             ejecutarPlanificacionAsincronica(parametros);
         } catch (NumberFormatException ex) {
             vista.mostrarError("Los parametros de costo deben ser numeros validos.");
         }
     }
 
-    private ParametrosCosto extraerParametrosCosto() {
+    private ValuadorConexiones extraerParametrosCosto() {
         PanelParametrosCosto panel = vista.getPnlParametros();
-        return new ParametrosCosto(
+        return new ValuadorConexiones(
             Double.parseDouble(panel.getCostoKm()),
             Double.parseDouble(panel.getPorcentajeAumento()),
             Double.parseDouble(panel.getCostoProvincia())
         );
     }
 
-    private void ejecutarPlanificacionAsincronica(ParametrosCosto parametros) {
+    private void ejecutarPlanificacionAsincronica(ValuadorConexiones parametros) {
         SwingWorker<SolucionRed, Void> trabajador = new SwingWorker<>() {
             @Override
             protected SolucionRed doInBackground() {

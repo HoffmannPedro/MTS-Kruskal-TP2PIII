@@ -7,10 +7,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class PlanificadorRedTest {
 
-    private final ParametrosCosto paramsStandard = new ParametrosCosto(1000.0, 0.40, 20000.0);
+    private final ValuadorConexiones paramsStandard = new ValuadorConexiones(1000.0, 0.40, 20000.0);
 
     private double costoEsperado(Localidad l1, Localidad l2) {
-        ValuadorConexiones valuador = new ValuadorConexiones(paramsStandard.costoPorKm(), paramsStandard.porcentajeAumentoExceso(), paramsStandard.costoFijoInterprovincial());
+        ValuadorConexiones valuador = new ValuadorConexiones(paramsStandard.getCostoPorKm(), paramsStandard.getPorcentajeAumentoExceso(), paramsStandard.getCostoFijoInterprovincial());
         return valuador.crearConexion(l1, l2).costo();
     }
 
@@ -146,7 +146,7 @@ public class PlanificadorRedTest {
     public void testUnSoloNodo() {
         Localidad a = new Localidad("A", "P1", -34.0, -58.0);
         PlanificadorRed planificador = new PlanificadorRed();
-        SolucionRed solucion = planificador.planificar(Arrays.asList(a), new ParametrosCosto(1000.0, 0.40, 20000.0));
+        SolucionRed solucion = planificador.planificar(Arrays.asList(a), new ValuadorConexiones(1000.0, 0.40, 20000.0));
 
         assertTrue(solucion.conexiones().isEmpty());
         assertEquals(0.0, solucion.costoTotal());

@@ -11,6 +11,18 @@ public class ValuadorConexiones {
     double costoFijoInterprovincial;
 
 
+    public double getCostoPorKm() {
+        return costoPorKm;
+    }
+
+    public double getPorcentajeAumentoExceso() {
+        return porcentajeAumentoExceso;
+    }
+
+    public double getCostoFijoInterprovincial() {
+        return costoFijoInterprovincial;
+    }
+
     public ValuadorConexiones(double costoPorKm, double porcentajeAumentoExceso, double costoFijoInterprovincial) {
         this.costoPorKm = costoPorKm;
         this.porcentajeAumentoExceso = porcentajeAumentoExceso;
