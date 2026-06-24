@@ -2,7 +2,9 @@ package tp2.modelo;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /** Clase encargada de mantener las localidades y planificar la red optima usando Kruskal. */
 
@@ -75,44 +77,80 @@ public class PlanificadorRed {
             return new SolucionRed(new ArrayList<>(), 0.0);
         }
 
-        int totalLocalidades = localidades.size();
-        List<Conexion> conexionesPosibles = generarGrafoCompleto(localidades, parametros);
+        Grafo<Localidad> grafoCompleto = generarGrafoCompleto(localidades, parametros);
+        Grafo<Localidad> arbolExpansionMinimo = aplicarKruskal(grafoCompleto);
 
-        conexionesPosibles.sort(Comparator.comparingDouble(Conexion::costo));
+        return crearSolucionRed(arbolExpansionMinimo, parametros);
+    }
 
-        UnionFind componentes = new UnionFind(totalLocalidades);
-        List<Conexion> arbolExpansionMinimo = new ArrayList<>();
-        double costoTotal = 0.0;
+    private Grafo<Localidad> aplicarKruskal(Grafo<Localidad> grafo) {
+        List<Arista<Localidad>> aristasOrdenadas = new ArrayList<>(grafo.aristas());
+        aristasOrdenadas.sort(Comparator.comparingDouble(Arista::peso));
 
-        for (Conexion conexion : conexionesPosibles) {
-            int indice1 = localidades.indexOf(conexion.localidad1());
-            int indice2 = localidades.indexOf(conexion.localidad2());
+        Map<Localidad, Integer> indices = indexarVertices(grafo.vertices());
+        UnionFind componentes = new UnionFind(grafo.cantidadVertices());
+        Grafo<Localidad> arbolExpansionMinimo = new Grafo<>();
+
+        for (Localidad localidad : grafo.vertices()) {
+            arbolExpansionMinimo.agregarVertice(localidad);
+        }
+
+        for (Arista<Localidad> arista : aristasOrdenadas) {
+            int indice1 = indices.get(arista.vertice1());
+            int indice2 = indices.get(arista.vertice2());
 
             if (componentes.union(indice1, indice2)) {
-                arbolExpansionMinimo.add(conexion);
-                costoTotal += conexion.costo();
+                arbolExpansionMinimo.agregarArista(arista);
             }
 
-            if (arbolExpansionMinimo.size() == totalLocalidades - 1) {
+            if (arbolExpansionMinimo.cantidadAristas() == grafo.cantidadVertices() - 1) {
                 break;
             }
         }
 
-        return new SolucionRed(arbolExpansionMinimo, costoTotal);
+        return arbolExpansionMinimo;
+    }
+
+    private Map<Localidad, Integer> indexarVertices(List<Localidad> vertices) {
+        Map<Localidad, Integer> indices = new HashMap<>();
+
+        for (int i = 0; i < vertices.size(); i++) {
+            indices.put(vertices.get(i), i);
+        }
+
+        return indices;
     }
 
     /** Genera un grafo completo con todas las conexiones posibles entre localidades. */
-    private List<Conexion> generarGrafoCompleto(List<Localidad> localidades, ParametrosCosto parametros) {
-        List<Conexion> conexiones = new ArrayList<>();
-        int cantidadLocalidades = localidades.size();
+    private Grafo<Localidad> generarGrafoCompleto(List<Localidad> localidades, ParametrosCosto parametros) {
+        Grafo<Localidad> grafo = new Grafo<>();
 
-        for (int i = 0; i < cantidadLocalidades; i++) {
-            for (int j = i + 1; j < cantidadLocalidades; j++) {
+        for (Localidad localidad : localidades) {
+            grafo.agregarVertice(localidad);
+        }
+
+        for (int i = 0; i < localidades.size(); i++) {
+            for (int j = i + 1; j < localidades.size(); j++) {
                 Localidad l1 = localidades.get(i);
                 Localidad l2 = localidades.get(j);
-                conexiones.add(ValuadorConexiones.crearConexion(l1, l2, parametros));
+                Conexion conexion = ValuadorConexiones.crearConexion(l1, l2, parametros);
+                grafo.agregarArista(new Arista<>(l1, l2, conexion.costo()));
             }
         }
-        return conexiones;
+
+        return grafo;
+    }
+
+    private SolucionRed crearSolucionRed(Grafo<Localidad> arbolExpansionMinimo, ParametrosCosto parametros) {
+        List<Conexion> conexiones = new ArrayList<>();
+        double costoTotal = 0.0;
+
+        for (Arista<Localidad> arista : arbolExpansionMinimo.aristas()) {
+            Conexion conexion = ValuadorConexiones.crearConexion(arista.vertice1(), arista.vertice2(), parametros);
+            conexiones.add(conexion);
+            costoTotal += conexion.costo();
+        }
+
+        return new SolucionRed(conexiones, costoTotal);
     }
 }
