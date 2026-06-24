@@ -134,7 +134,8 @@ public class PlanificadorRed {
             for (int j = i + 1; j < localidades.size(); j++) {
                 Localidad l1 = localidades.get(i);
                 Localidad l2 = localidades.get(j);
-                Conexion conexion = ValuadorConexiones.crearConexion(l1, l2, parametros);
+                ValuadorConexiones valuador = new ValuadorConexiones(parametros.costoPorKm(), parametros.porcentajeAumentoExceso(), parametros.costoFijoInterprovincial());
+                Conexion conexion = valuador.crearConexion(l1, l2);
                 grafo.agregarArista(new Arista<>(l1, l2, conexion.costo()));
             }
         }
@@ -147,7 +148,8 @@ public class PlanificadorRed {
         double costoTotal = 0.0;
 
         for (Arista<Localidad> arista : arbolExpansionMinimo.aristas()) {
-            Conexion conexion = ValuadorConexiones.crearConexion(arista.vertice1(), arista.vertice2(), parametros);
+            ValuadorConexiones valuador = new ValuadorConexiones(parametros.costoPorKm(), parametros.porcentajeAumentoExceso(), parametros.costoFijoInterprovincial());
+            Conexion conexion = valuador.crearConexion(arista.vertice1(), arista.vertice2());
             conexiones.add(conexion);
             costoTotal += conexion.costo();
         }

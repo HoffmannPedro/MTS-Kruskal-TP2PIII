@@ -10,7 +10,8 @@ public class PlanificadorRedTest {
     private final ParametrosCosto paramsStandard = new ParametrosCosto(1000.0, 0.40, 20000.0);
 
     private double costoEsperado(Localidad l1, Localidad l2) {
-        return ValuadorConexiones.crearConexion(l1, l2, paramsStandard).costo();
+        ValuadorConexiones valuador = new ValuadorConexiones(paramsStandard.costoPorKm(), paramsStandard.porcentajeAumentoExceso(), paramsStandard.costoFijoInterprovincial());
+        return valuador.crearConexion(l1, l2).costo();
     }
 
     private boolean conecta(SolucionRed solucion, Localidad a, Localidad b) {
