@@ -4,8 +4,6 @@ import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.openstreetmap.gui.jmapviewer.JMapViewer;
 import org.openstreetmap.gui.jmapviewer.MapMarkerDot;
 import org.openstreetmap.gui.jmapviewer.MapPolygonImpl;
-import tp2.modelo.Conexion;
-import tp2.modelo.Localidad;
 
 import javax.swing.*;
 import java.awt.*;
@@ -42,24 +40,28 @@ public class PanelMapa extends JPanel {
         });
     }
 
-    public void dibujarSolucion(List<Localidad> localidades, List<Conexion> mst) {
+    /**
+     * Dibuja la solucion en el mapa.
+     * @param marcadores Lista de {latitud, longitud} de cada localidad
+     * @param conexiones Lista de pares {{lat1, lon1}, {lat2, lon2}} de cada conexion del AGM
+     */
+    public void dibujarSolucion(List<double[]> marcadores, List<double[][]> conexiones) {
         limpiar();
 
-        for (Localidad localidad : localidades) {
-            mapa.addMapMarker(new MapMarkerDot(localidad.nombre(), new Coordinate(localidad.latitud(), localidad.longitud())));
+        for (double[] m : marcadores) {
+            mapa.addMapMarker(new MapMarkerDot(new Coordinate(m[0], m[1])));
         }
 
-        for (Conexion conexion : mst) {
-            Coordinate coord1 = new Coordinate(conexion.localidad1().latitud(), conexion.localidad1().longitud());
-            Coordinate coord2 = new Coordinate(conexion.localidad2().latitud(), conexion.localidad2().longitud());
-            
+        for (double[][] par : conexiones) {
+            Coordinate coord1 = new Coordinate(par[0][0], par[0][1]);
+            Coordinate coord2 = new Coordinate(par[1][0], par[1][1]);
             MapPolygonImpl linea = new MapPolygonImpl(List.of(coord1, coord2, coord1));
             linea.setColor(new Color(0, 255, 255));
             linea.setStroke(new BasicStroke(2.5f));
             mapa.addMapPolygon(linea);
         }
 
-        if (!localidades.isEmpty()) {
+        if (!marcadores.isEmpty()) {
             mapa.setDisplayToFitMapMarkers();
         }
     }
@@ -69,8 +71,8 @@ public class PanelMapa extends JPanel {
         mapa.removeAllMapPolygons();
     }
 
-    public void agregarLocalidad(Localidad localidad) {
-        mapa.addMapMarker(new MapMarkerDot(localidad.nombre(), 
-                new Coordinate(localidad.latitud(), localidad.longitud())));
+    /** Agrega un marcador al mapa con los datos primitivos de la localidad */
+    public void agregarMarcador(String nombre, double latitud, double longitud) {
+        mapa.addMapMarker(new MapMarkerDot(nombre, new Coordinate(latitud, longitud)));
     }
 }

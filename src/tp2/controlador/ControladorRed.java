@@ -104,7 +104,7 @@ public class ControladorRed {
             
             actualizarProvincias();
             actualizarListado();
-            vista.getPnlMapa().agregarLocalidad(nueva);
+            vista.getPnlMapa().agregarMarcador(nueva.nombre(), nueva.latitud(), nueva.longitud());
             formulario.limpiar();
             
         } catch (NumberFormatException ex) {
@@ -172,11 +172,31 @@ public class ControladorRed {
     private void actualizarResultadosEnVista(SolucionRed resultado) {
         vista.mostrarResultado(resultado);
         vista.getPnlResultados().mostrarSolucion(resultado);
-        vista.getPnlMapa().dibujarSolucion(modelo.obtenerLocalidades(), resultado.conexiones());
+
+        List<double[]> marcadores = modelo.obtenerLocalidades().stream()
+            .map(l -> new double[]{l.latitud(), l.longitud()})
+            .toList();
+
+        List<double[][]> conexiones = resultado.conexiones().stream()
+            .map(c -> new double[][]{
+                {c.localidad1().latitud(), c.localidad1().longitud()},
+                {c.localidad2().latitud(), c.localidad2().longitud()}
+            })
+            .toList();
+
+        vista.getPnlMapa().dibujarSolucion(marcadores, conexiones);
     }
 
     private void actualizarListado() {
-        vista.getPnlListado().actualizar(obtenerLocalidadesVisibles());
+        List<String[]> filas = obtenerLocalidadesVisibles().stream()
+            .map(l -> new String[]{
+                l.nombre(),
+                l.provincia(),
+                String.format("%.4f", l.latitud()),
+                String.format("%.4f", l.longitud())
+            })
+            .toList();
+        vista.getPnlListado().actualizar(filas);
     }
 
     private void actualizarProvincias() {

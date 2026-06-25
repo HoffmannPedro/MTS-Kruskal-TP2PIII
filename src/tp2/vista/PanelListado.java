@@ -1,7 +1,5 @@
 package tp2.vista;
 
-import tp2.modelo.Localidad;
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -85,21 +83,17 @@ public class PanelListado extends JPanel {
         add(panelSur, BorderLayout.SOUTH);
     }
 
-    public void actualizar(List<Localidad> localidades) {
-        actualizarTabla(localidades);
-    }
-
-    private void actualizarTabla(List<Localidad> localidades) {
+    /**
+     * Actualiza la tabla con filas de datos primitivos.
+     * Cada fila es un array: {nombre, provincia, latitud, longitud}
+     */
+    public void actualizar(List<String[]> filas) {
         modeloTabla.setRowCount(0);
-        for (Localidad localidad : localidades) {
-            modeloTabla.addRow(new Object[]{
-                localidad.nombre(), 
-                localidad.provincia(), 
-                String.format("%.4f", localidad.latitud()), 
-                String.format("%.4f", localidad.longitud())
-            });
+        for (String[] fila : filas) {
+            modeloTabla.addRow(fila);
         }
     }
+
     public void actualizarProvincias(List<String> provincias) {
         Object seleccionActual = comboProvincia.getSelectedItem();
         comboProvincia.removeAllItems();
