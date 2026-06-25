@@ -3,8 +3,8 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-22"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="c:/Users/Rodrigo/Desktop/AAAPAAAPASDDDDDDDDDDDDDDD/MTS-Kruskal-TP2PIII/lib/JMapViewer.jar"/>
-	<classpathentry kind="lib" path="c:/Users/Rodrigo/Desktop/AAAPAAAPASDDDDDDDDDDDDDDD/MTS-Kruskal-TP2PIII/lib/flatlaf-3.7.1.jar"/>
+	<classpathentry kind="lib" path="lib/JMapViewer.jar"/>
+	<classpathentry kind="lib" path="lib/flatlaf-3.7.1.jar"/>
 	<classpathentry kind="lib" path="c:/Users/Rodrigo/.vscode/extensions/vscjava.vscode-java-test-0.45.0/server/junit-jupiter-api_5.14.3.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://junit.org/junit5/docs/current/api/"/>
