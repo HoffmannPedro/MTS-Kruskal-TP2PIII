@@ -24,6 +24,14 @@ public class ValuadorConexiones {
     }
 
     public ValuadorConexiones(double costoPorKm, double porcentajeAumentoExceso, double costoFijoInterprovincial) {
+
+         if (costoPorKm < 0)
+            throw new IllegalArgumentException("El costo por km no puede ser negativo");
+        if (porcentajeAumentoExceso < 0)
+            throw new IllegalArgumentException("El porcentaje de aumento no puede ser negativo");
+        if (costoFijoInterprovincial < 0)
+            throw new IllegalArgumentException("El costo fijo no puede ser negativo");
+        
         this.costoPorKm = costoPorKm;
         this.porcentajeAumentoExceso = porcentajeAumentoExceso;
         this.costoFijoInterprovincial = costoFijoInterprovincial;
